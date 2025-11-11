@@ -16,8 +16,20 @@ jobs:
         host: ${{ secrets.VPS_HOST }}
         username: ${{ secrets.VPS_USERNAME }}
         key: ${{ secrets.VPS_SSH_KEY }}
+        envs: DOMAIN_NAME,BACKEND_REPO,FRONTEND_REPO,MONGODB_URI,JWT_SECRET,SPORTS_ODDS_API_KEY,EMAIL_USER,EMAIL_PASS,SESSION_SECRET
+      env:
+        DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
+        BACKEND_REPO: ${{ secrets.BACKEND_REPO }}
+        FRONTEND_REPO: ${{ secrets.FRONTEND_REPO }}
+        MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        SPORTS_ODDS_API_KEY: ${{ secrets.SPORTS_ODDS_API_KEY }}
+        EMAIL_USER: ${{ secrets.EMAIL_USER }}
+        EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+        SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
         script: |
           cd /var/www/deployment-config
           git pull origin main
-          chmod +x deploy.sh
+          chmod +x env-from-secrets.sh deploy.sh
+          ./env-from-secrets.sh
           ./deploy.sh

@@ -51,17 +51,20 @@ ssh root@your-vps-ip
 curl -sSL https://raw.githubusercontent.com/yourusername/fairstake-deployment-config/main/setup-vps.sh | bash
 ```
 
-### Step 3: Configure Environment
-```bash
-# Edit environment variables
-nano /var/www/deployment-config/.env
+### Step 3: Configure Environment (Secure Methods)
 
-# Update with your actual values:
-# - DOMAIN_NAME
-# - BACKEND_REPO
-# - FRONTEND_REPO  
-# - MONGODB_URI
-# - All API keys and credentials
+#### Option A: Interactive Setup (Recommended)
+```bash
+cd /var/www/deployment-config
+chmod +x setup-env.sh
+./setup-env.sh
+```
+
+#### Option B: Manual Setup
+```bash
+cp .env.template .env
+nano .env  # Edit with your values
+chmod 600 .env  # Secure permissions
 ```
 
 ### Step 4: Deploy
@@ -71,10 +74,23 @@ cd /var/www/deployment-config
 ```
 
 ### Step 5: GitHub Actions (Optional)
-Add secrets to deployment-config repository:
-- `VPS_HOST`: Your VPS IP
-- `VPS_USERNAME`: SSH username
-- `VPS_SSH_KEY`: Private SSH key
+Add these secrets to your deployment-config repository:
+
+**VPS Access:**
+- `VPS_HOST`: Your VPS IP address
+- `VPS_USERNAME`: SSH username (usually `root`)
+- `VPS_SSH_KEY`: Your private SSH key
+
+**Environment Variables:**
+- `DOMAIN_NAME`: Your domain (e.g., `fairstakebet.com`)
+- `BACKEND_REPO`: Backend repository URL
+- `FRONTEND_REPO`: Frontend repository URL
+- `MONGODB_URI`: MongoDB connection string
+- `JWT_SECRET`: JWT secret key (32+ characters)
+- `SPORTS_ODDS_API_KEY`: Sports API key
+- `EMAIL_USER`: Your email address
+- `EMAIL_PASS`: Gmail app password
+- `SESSION_SECRET`: Session secret key
 
 ## Managing Multiple Applications
 
