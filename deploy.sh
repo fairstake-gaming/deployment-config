@@ -12,45 +12,46 @@ FRONTEND_DIR="$DEPLOY_DIR/frontend"
 source .env
 
 echo "🚀 Starting deployment..."
+echo "📍 Working directory: $DEPLOY_DIR"
 
-# Create deployment directory
-mkdir -p $DEPLOY_DIR
+# Navigate to deployment directory
 cd $DEPLOY_DIR
 
-# Clone/Update repositories
-if [ -d "$BACKEND_DIR" ]; then
-    echo "📦 Updating backend..."
-    cd $BACKEND_DIR && git pull origin main
-else
-    echo "📦 Cloning backend..."
-    git clone $BACKEND_REPO $BACKEND_DIR
-fi
+# Update repositories
+echo "📦 Updating backend..."
+cd $BACKEND_DIR
+git fetch origin
+git reset --hard origin/main
+git pull origin main
 
-if [ -d "$FRONTEND_DIR" ]; then
-    echo "📦 Updating frontend..."
-    cd $FRONTEND_DIR && git pull origin main
-else
-    echo "📦 Cloning frontend..."
-    git clone $FRONTEND_REPO $FRONTEND_DIR
-fi
+echo "📦 Updating frontend..."
+cd $FRONTEND_DIR
+git fetch origin
+git reset --hard origin/main
+git pull origin main
 
 # Copy deployment files
+echo "📋 Copying deployment configuration..."
 cd $DEPLOY_DIR
 cp /var/www/deployment-config/docker-compose.yml .
-cp /var/www/deployment-config/nginx/nginx.conf nginx.conf
 cp /var/www/deployment-config/.env .
 
-# Replace domain in nginx config
-sed -i "s/\${DOMAIN_NAME}/$DOMAIN_NAME/g" nginx.conf
+# Copy nginx config if it exists
+if [ -f "/var/www/deployment-config/nginx/nginx.conf" ]; then
+    mkdir -p nginx
+    cp /var/www/deployment-config/nginx/nginx.conf nginx/
+fi
 
 # Build and deploy
-echo "🔨 Building and deploying..."
-docker-compose down --remove-orphans
+echo "🔨 Building and deploying containers..."
+docker-compose down --remove-orphans || true
 docker-compose build --no-cache
 docker-compose up -d
 
 # Cleanup
+echo "🧹 Cleaning up..."
 docker system prune -f
 
 echo "✅ Deployment complete!"
-echo "🌐 Your app is running at: http://$DOMAIN_NAME"
+echo "🌐 Your app should be running at: https://$DOMAIN_NAME"
+docker-compose ps

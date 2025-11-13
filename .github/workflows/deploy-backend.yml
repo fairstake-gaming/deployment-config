@@ -1,8 +1,8 @@
-name: Deploy to VPS
+name: Deploy Backend Changes
 
 on:
-  push:
-    branches: [ main ]
+  repository_dispatch:
+    types: [backend-updated]
   workflow_dispatch:
 
 jobs:
@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Deploy to VPS
+    - name: Deploy Backend to VPS
       uses: appleboy/ssh-action@v0.1.7
       with:
         host: ${{ secrets.VPS_HOST }}
         username: ${{ secrets.VPS_USERNAME }}
         key: ${{ secrets.VPS_SSH_KEY }}
-        envs: DOMAIN_NAME,BACKEND_REPO,FRONTEND_REPO,MONGODB_URI,JWT_SECRET,SPORTS_ODDS_API_KEY,EMAIL_USER,EMAIL_PASS,SESSION_SECRET,CCP_APP_ID,CCP_APP_SECRET,CCP_MERCHANT_ID,CLOUDINARY_CLOUD_NAME,CLOUDINARY_API_KEY,CLOUDINARY_API_SECRET,VPS_HOST,VPS_USERNAME,VPS_SSH_KEY
+        envs: DOMAIN_NAME,BACKEND_REPO,FRONTEND_REPO,MONGODB_URI,JWT_SECRET,SPORTS_ODDS_API_KEY,EMAIL_USER,EMAIL_PASS,SESSION_SECRET,CCP_APP_ID,CCP_APP_SECRET,CCP_MERCHANT_ID,CLOUDINARY_CLOUD_NAME,CLOUDINARY_API_KEY,CLOUDINARY_API_SECRET
         script: |
           export DOMAIN_NAME="${{ secrets.DOMAIN_NAME }}"
           export BACKEND_REPO="${{ secrets.BACKEND_REPO }}"
@@ -35,6 +35,6 @@ jobs:
           export CLOUDINARY_API_SECRET="${{ secrets.CLOUDINARY_API_SECRET }}"
           cd /var/www/deployment-config
           git pull origin main
-          chmod +x env-from-secrets.sh deploy.sh
+          chmod +x env-from-secrets.sh deploy-backend.sh
           ./env-from-secrets.sh
-          ./deploy.sh
+          ./deploy-backend.sh
