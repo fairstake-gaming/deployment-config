@@ -1,6 +1,19 @@
 version: '3.8'
 
 services:
+  mongodb:
+    image: mongo:5.0
+    container_name: fairstake-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=fairstakebet
+    networks:
+      - app-network
+
   backend:
     image: ${BACKEND_IMAGE:-fairstake-backend:latest}
     build:
@@ -28,6 +41,8 @@ services:
       - CORS_ORIGINS=${CORS_ORIGINS}
       - SESSION_SECRET=${SESSION_SECRET}
     restart: unless-stopped
+    depends_on:
+      - mongodb
     networks:
       - app-network
 
@@ -63,3 +78,7 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  mongodb_data:
+    driver: local
